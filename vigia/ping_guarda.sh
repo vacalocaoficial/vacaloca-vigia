@@ -38,7 +38,7 @@ if [ "${EVENTO:-}" = "schedule" ]; then
     *)
       # chave AAAAMMDDHHMM em UTC (o ano fixo 2026 serve: o cron nao tem ano e, em 2027, o vigia ja encerrou)
       K=$(printf '2026%02d%02d%02d%02d' "$((10#$MM))" "$((10#$DD))" "$((10#$HR))" "$((10#$MI))")
-      if   [ "$K" -le 202611280457 ]; then SLUGS="vigia-0157"          # 01:57 BRT = 04:57 UTC
+      if   [ "$K" -le 202611280507 ]; then SLUGS="vigia-0157"          # 01:57 BRT = 04:57 UTC e a redundante 02:07 BRT = 05:07 UTC
       elif [ "$K" -lt 202611281200 ]; then SLUGS="vigia-madrugada"     # ate 08:47 BRT
       elif [ "$K" -lt 202611290300 ]; then SLUGS="vigia-dia28"         # 09:47 a 23:47 BRT de 28/11
       elif [ "$K" -lt 202612010300 ]; then SLUGS="vigia-geral-nov"     # 29/11 00:47 a 30/11 21:47 BRT (este e 01/12 00:47 UTC)

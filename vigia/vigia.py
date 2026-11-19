@@ -263,6 +263,7 @@ def main(argv=None):
     fonte.add_argument("--feed-arquivo")
     ap.add_argument("--excecoes", help="arquivo JSON de campanhas autorizadas")
     ap.add_argument("--registro", help="cópia pública do registro de vencimentos (arquivo ou https; opcional)")
+    ap.add_argument("--registro-idade-max-h", type=float, default=REGISTRO_IDADE_MAX_H, help="idade máxima do registro em horas (padrão 26; na janela 28/11-02/12 o workflow usa 160 para não exigir renovação diária)")
     ap.add_argument("--snapshot", help="fotografia dos grupos promovidos antes da virada (arquivo ou https; opcional)")
     ap.add_argument("--agora", help="relógio simulado com fuso (ensaio)")
     ap.add_argument("--corte", default=CORTE_PADRAO)
@@ -306,7 +307,7 @@ def main(argv=None):
         exc = ler_excecoes(open(a.excecoes, "rb").read() if a.excecoes else None, a.max_dias_excecao)
     except (Ilegivel, OSError) as e:
         return encerrar(2, f"exceções ilegíveis: {e}")
-    registro = _ler_opcional(a.registro, "registro de vencimentos", lambda b: ler_registro(b, agora), notas, retry)
+    registro = _ler_opcional(a.registro, "registro de vencimentos", lambda b: ler_registro(b, agora, idade_max_h=a.registro_idade_max_h), notas, retry)
     snap = _ler_opcional(a.snapshot, "fotografia de grupos vigiados", lambda b: ler_snapshot(b, agora), notas, retry)
     snapshot, ref_linhas = (snap if snap else (None, None))
 
