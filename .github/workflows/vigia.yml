@@ -108,7 +108,7 @@ jobs:
           [ -f vigia/registro_publico.json ] && ARGS+=(--registro vigia/registro_publico.json --registro-idade-max-h 160)
           [ -f vigia/grupos_vigiados.json ] && ARGS+=(--snapshot vigia/grupos_vigiados.json)
           set +e
-          python3 -I vigia/vigia.py --feed-url "https://vacalocaoficial.github.io/vacaloca-feed/feed.csv" --excecoes vigia/excecoes_campanhas.json "${ARGS[@]}" 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          python3 -I vigia/vigia.py --feed-url "https://vacalocaoficial.github.io/vacaloca-feed/feed.csv" --excecoes vigia/excecoes_campanhas.json --min-linhas 2000 "${ARGS[@]}" 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
           RC=${PIPESTATUS[0]}
           echo "rc=$RC" >> "$GITHUB_OUTPUT"
           exit "$RC"
