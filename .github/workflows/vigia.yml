@@ -1,0 +1,125 @@
+# RASCUNHO INATIVO (para um repositorio SEPARADO e PUBLICO, "vacaloca-vigia", sem nenhum segredo).
+# Somente leitura: baixa o feed publico e FALHA (=> e-mail/push do GitHub) se sobrar sale_price vencido.
+# Niveis: antes de 00:05 BRT so informa; de 00:05 a 01:55 so AVISA (codigo 0); a partir de 01:55 BRT FALHA.
+# Opcionais (se existirem no repositorio): vigia/registro_publico.json (datas por grupo) e vigia/grupos_vigiados.json (fotografia de 27/11).
+# OBRIGACAO (03/12/2026): o cron nao tem ano, entao, se ficar ligado, roda de novo todo 28/11 (62 execucoes por ano). O vigia
+#   se encerra sozinho (codigo 0, sem baixar nada), mas o JOB AINDA DISPARA. Em 03/12/2026: comentar "schedule:" e as 62 linhas
+#   de cron (ou desabilitar o workflow na aba Actions) e registrar no checklist. Ligar so ate la; congelar a lista em 26/11.
+# REGISTRO DE VENCIMENTOS (vigia/registro_publico.json): so vale por 26 h depois de "atualizado_em". Exportar em 27/11 ~22h30
+#   (depois do registro de 22h25) cobre a virada ate ~00h30 de 29/11; depois disso o vigia ignora o registro e usa o modo
+#   conservador (fotografia). Para renovar: exportar de novo (so codigos e datas, sem precos), substituir o arquivo no
+#   repositorio do vigia (com autorizacao do Beto) e conferir "registro sim" na saida do proximo ensaio.
+# Feed publico sem republicar ha mais de 36 h: so AVISO (Last-Modified so anda quando o conteudo muda); nunca falha.
+name: Vigia do feed oficial
+on:
+  workflow_dispatch:
+    inputs:
+      agora: { description: "Ensaio: relogio simulado, ex: 2026-11-28T02:10-03:00 (vazio = agora)", required: false }
+      estrito: { description: "Ensaio: tratar qualquer horario como emergencia (true/false)", required: false, default: "false" }
+      armar: { description: "Relogio de guarda: com o vigia aprovado, 'arma' as 4 verificacoes reais (true/false). Fazer 1x em 27/11", required: false, default: "false" }
+  # AGENDAMENTO DESLIGADO. Cron = UTC (Brasilia = UTC-3). Cada linha: UTC  # BRT.
+  # 28/11: a cada 30 min de 02:17 a 08:47, de hora em hora ate 23:47; 29/11 a 02/12: a cada 3 h (:47). Minutos :17/:47 evitam a fila do GitHub.
+  # schedule:
+  #   - cron: '57 4 28 11 *'   # BRT 28/11 01:57 (1o minuto util depois do limite de emergencia 01:55)
+  #   - cron: '17 5 28 11 *'   # BRT 28/11 02:17
+  #   - cron: '47 5 28 11 *'   # BRT 28/11 02:47
+  #   - cron: '17 6 28 11 *'   # BRT 28/11 03:17
+  #   - cron: '47 6 28 11 *'   # BRT 28/11 03:47
+  #   - cron: '17 7 28 11 *'   # BRT 28/11 04:17
+  #   - cron: '47 7 28 11 *'   # BRT 28/11 04:47
+  #   - cron: '17 8 28 11 *'   # BRT 28/11 05:17
+  #   - cron: '47 8 28 11 *'   # BRT 28/11 05:47
+  #   - cron: '17 9 28 11 *'   # BRT 28/11 06:17
+  #   - cron: '47 9 28 11 *'   # BRT 28/11 06:47
+  #   - cron: '17 10 28 11 *'   # BRT 28/11 07:17
+  #   - cron: '47 10 28 11 *'   # BRT 28/11 07:47
+  #   - cron: '17 11 28 11 *'   # BRT 28/11 08:17
+  #   - cron: '47 11 28 11 *'   # BRT 28/11 08:47
+  #   - cron: '47 12 28 11 *'   # BRT 28/11 09:47
+  #   - cron: '47 13 28 11 *'   # BRT 28/11 10:47
+  #   - cron: '47 14 28 11 *'   # BRT 28/11 11:47
+  #   - cron: '47 15 28 11 *'   # BRT 28/11 12:47
+  #   - cron: '47 16 28 11 *'   # BRT 28/11 13:47
+  #   - cron: '47 17 28 11 *'   # BRT 28/11 14:47
+  #   - cron: '47 18 28 11 *'   # BRT 28/11 15:47
+  #   - cron: '47 19 28 11 *'   # BRT 28/11 16:47
+  #   - cron: '47 20 28 11 *'   # BRT 28/11 17:47
+  #   - cron: '47 21 28 11 *'   # BRT 28/11 18:47
+  #   - cron: '47 22 28 11 *'   # BRT 28/11 19:47
+  #   - cron: '47 23 28 11 *'   # BRT 28/11 20:47
+  #   - cron: '47 0 29 11 *'   # BRT 28/11 21:47
+  #   - cron: '47 1 29 11 *'   # BRT 28/11 22:47
+  #   - cron: '47 2 29 11 *'   # BRT 28/11 23:47
+  #   - cron: '47 3 29 11 *'   # BRT 29/11 00:47
+  #   - cron: '47 6 29 11 *'   # BRT 29/11 03:47
+  #   - cron: '47 9 29 11 *'   # BRT 29/11 06:47
+  #   - cron: '47 12 29 11 *'   # BRT 29/11 09:47
+  #   - cron: '47 15 29 11 *'   # BRT 29/11 12:47
+  #   - cron: '47 18 29 11 *'   # BRT 29/11 15:47
+  #   - cron: '47 21 29 11 *'   # BRT 29/11 18:47
+  #   - cron: '47 0 30 11 *'   # BRT 29/11 21:47
+  #   - cron: '47 3 30 11 *'   # BRT 30/11 00:47
+  #   - cron: '47 6 30 11 *'   # BRT 30/11 03:47
+  #   - cron: '47 9 30 11 *'   # BRT 30/11 06:47
+  #   - cron: '47 12 30 11 *'   # BRT 30/11 09:47
+  #   - cron: '47 15 30 11 *'   # BRT 30/11 12:47
+  #   - cron: '47 18 30 11 *'   # BRT 30/11 15:47
+  #   - cron: '47 21 30 11 *'   # BRT 30/11 18:47
+  #   - cron: '47 0 1 12 *'   # BRT 30/11 21:47
+  #   - cron: '47 3 1 12 *'   # BRT 01/12 00:47
+  #   - cron: '47 6 1 12 *'   # BRT 01/12 03:47
+  #   - cron: '47 9 1 12 *'   # BRT 01/12 06:47
+  #   - cron: '47 12 1 12 *'   # BRT 01/12 09:47
+  #   - cron: '47 15 1 12 *'   # BRT 01/12 12:47
+  #   - cron: '47 18 1 12 *'   # BRT 01/12 15:47
+  #   - cron: '47 21 1 12 *'   # BRT 01/12 18:47
+  #   - cron: '47 0 2 12 *'   # BRT 01/12 21:47
+  #   - cron: '47 3 2 12 *'   # BRT 02/12 00:47
+  #   - cron: '47 6 2 12 *'   # BRT 02/12 03:47
+  #   - cron: '47 9 2 12 *'   # BRT 02/12 06:47
+  #   - cron: '47 12 2 12 *'   # BRT 02/12 09:47
+  #   - cron: '47 15 2 12 *'   # BRT 02/12 12:47
+  #   - cron: '47 18 2 12 *'   # BRT 02/12 15:47
+  #   - cron: '47 21 2 12 *'   # BRT 02/12 18:47
+  #   - cron: '47 0 3 12 *'   # BRT 02/12 21:47
+permissions:
+  contents: read
+defaults:
+  run:
+    shell: bash
+jobs:
+  vigia:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - name: Conferir o feed publico
+        id: vigia
+        env: { AGORA: "${{ inputs.agora }}", ESTRITO: "${{ inputs.estrito }}" }
+        run: |
+          set -o pipefail
+          ARGS=()
+          if [ -n "$AGORA" ]; then echo "$AGORA" | grep -qE '^20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(:[0-9]{2})?-03:00$' || { echo "formato de agora invalido"; exit 2; }; ARGS+=(--agora "$AGORA"); fi
+          if [ "$ESTRITO" = "true" ]; then ARGS+=(--estrito); fi
+          [ -f vigia/registro_publico.json ] && ARGS+=(--registro vigia/registro_publico.json)
+          [ -f vigia/grupos_vigiados.json ] && ARGS+=(--snapshot vigia/grupos_vigiados.json)
+          set +e
+          python3 -I vigia/vigia.py --feed-url "https://vacalocaoficial.github.io/vacaloca-feed/feed.csv" --excecoes vigia/excecoes_campanhas.json "${ARGS[@]}" 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          RC=${PIPESTATUS[0]}
+          echo "rc=$RC" >> "$GITHUB_OUTPUT"
+          exit "$RC"
+      # Relogio de guarda: roda SEMPRE, mas so AVISA o Healthchecks.io. A falha do vigia ja esta decidida no passo acima (o job reprova);
+      # este passo nunca a transforma em aprovada (continue-on-error so protege contra falha do PING). O secret so existe neste passo.
+      - name: Relogio de guarda (aviso externo)
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 3
+        env:
+          HC_PING_KEY: ${{ secrets.HC_PING_KEY }}
+          RESULTADO: ${{ steps.vigia.outcome }}
+          RC: ${{ steps.vigia.outputs.rc }}
+          EVENTO: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+          ARMAR: ${{ inputs.armar }}
+        run: bash vigia/ping_guarda.sh
