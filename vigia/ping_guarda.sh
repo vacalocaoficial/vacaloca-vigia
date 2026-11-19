@@ -6,7 +6,7 @@
 # Entradas (variaveis de ambiente): HC_PING_KEY (secret), RESULTADO (success|failure|skipped|cancelled), RC (codigo do vigia),
 #   EVENTO (schedule|workflow_dispatch), SCHEDULE (o cron que disparou, em UTC), ARMAR ("true" so em disparo manual).
 # Verificacoes no Healthchecks (nomes = slugs):
-#   vigia-0157 (28/11 01:57), vigia-madrugada (28/11 02:17-08:47), vigia-dia28 (28/11 09:47-23:47), vigia-geral (29/11-02/12),
+#   vigia-0157 (28/11 01:57), vigia-madrugada (28/11 02:17-08:47), vigia-dia28 (28/11 09:47-23:47), vigia-geral-nov (29/11-30/11), vigia-geral-dez (01/12-02/12),
 #   vigia-ensaio (disparos manuais comuns; nao alarma ninguem de verdade).
 set -u
 CHAVE="${HC_PING_KEY:-}"
@@ -41,11 +41,12 @@ if [ "${EVENTO:-}" = "schedule" ]; then
       if   [ "$K" -le 202611280457 ]; then SLUGS="vigia-0157"          # 01:57 BRT = 04:57 UTC
       elif [ "$K" -lt 202611281200 ]; then SLUGS="vigia-madrugada"     # ate 08:47 BRT
       elif [ "$K" -lt 202611290300 ]; then SLUGS="vigia-dia28"         # 09:47 a 23:47 BRT de 28/11
-      else SLUGS="vigia-geral"; fi ;;
+      elif [ "$K" -lt 202612010300 ]; then SLUGS="vigia-geral-nov"     # 29/11 00:47 a 30/11 21:47 BRT (este e 01/12 00:47 UTC)
+      else SLUGS="vigia-geral-dez"; fi ;;                              # 01/12 00:47 BRT (03:47 UTC) em diante
   esac
 elif [ "${EVENTO:-}" = "workflow_dispatch" ] && [ "${ARMAR:-}" = "true" ]; then
   if [ "$STATUS" -eq 0 ]; then
-    SLUGS="vigia-0157 vigia-madrugada vigia-dia28 vigia-geral"   # "arma" as verificacoes reais (uma verificacao nova nunca alerta antes do 1o ping)
+    SLUGS="vigia-0157 vigia-madrugada vigia-dia28 vigia-geral-nov vigia-geral-dez"   # "arma" as 5 verificacoes reais (uma verificacao nova nunca alerta antes do 1o ping)
   else
     echo "::warning::armar so vale com o vigia aprovado; verificacoes reais nao foram armadas"
   fi
