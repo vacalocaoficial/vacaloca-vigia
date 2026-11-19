@@ -5,6 +5,8 @@
 # OBRIGACAO (03/12/2026): o cron nao tem ano, entao, se ficar ligado, roda de novo todo 28/11 (62 execucoes por ano). O vigia
 #   se encerra sozinho (codigo 0, sem baixar nada), mas o JOB AINDA DISPARA. Em 03/12/2026: comentar "schedule:" e as 62 linhas
 #   de cron (ou desabilitar o workflow na aba Actions) e registrar no checklist. Ligar so ate la; congelar a lista em 26/11.
+# RELOGIO DE GUARDA (Healthchecks.io, 5 verificacoes, fuso America/Sao_Paulo): vigia-0157, vigia-madrugada, vigia-dia28, vigia-geral-nov,
+#   vigia-geral-dez. Em 03/12/2026, junto com os crons, PAUSAR ou APAGAR as 5 verificacoes (a agenda delas so se repete em 2027).
 # REGISTRO DE VENCIMENTOS (vigia/registro_publico.json): so vale por 26 h depois de "atualizado_em". Exportar em 27/11 ~22h30
 #   (depois do registro de 22h25) cobre a virada ate ~00h30 de 29/11; depois disso o vigia ignora o registro e usa o modo
 #   conservador (fotografia). Para renovar: exportar de novo (so codigos e datas, sem precos), substituir o arquivo no
@@ -16,7 +18,7 @@ on:
     inputs:
       agora: { description: "Ensaio: relogio simulado, ex: 2026-11-28T02:10-03:00 (vazio = agora)", required: false }
       estrito: { description: "Ensaio: tratar qualquer horario como emergencia (true/false)", required: false, default: "false" }
-      armar: { description: "Relogio de guarda: com o vigia aprovado, 'arma' as 4 verificacoes reais (true/false). Fazer 1x em 27/11", required: false, default: "false" }
+      armar: { description: "Relogio de guarda: com o vigia aprovado, 'arma' as 5 verificacoes reais (true/false). Fazer 1x em 27/11", required: false, default: "false" }
   # AGENDAMENTO DESLIGADO. Cron = UTC (Brasilia = UTC-3). Cada linha: UTC  # BRT.
   # 28/11: a cada 30 min de 02:17 a 08:47, de hora em hora ate 23:47; 29/11 a 02/12: a cada 3 h (:47). Minutos :17/:47 evitam a fila do GitHub.
   # schedule:
